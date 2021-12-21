@@ -1,0 +1,8 @@
+# DB 설정 정보
+driver=oracle.jdbc.driver.OracleDriver
+dburl=jdbc:oracle:thin:@203.216.179.152:1521:xe
+name=final
+pass=1111
+# 파일서버
+tmpUpload=C:/javaexp/workspace/.metadata/.plugins/org.eclipse.wst.server.core/tmp0/wtpwebapps/sopms/upload/
+upload=C:/javaexp/workspace/sopms/src/main/webapp/upload/

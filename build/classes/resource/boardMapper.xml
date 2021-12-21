@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="sopms.project.dao.boardDao">
+	<insert id="insertBoard" parameterType="board">
+		INSERT INTO board VALUES
+		(board_seq.nextval,#{btitle},#{id},#{bcontent},#{readcnt},sysdate)
+	</insert>
+	<update id="uptReadCnt" parameterType="int">
+		UPDATE board
+		SET readcnt =
+		readcnt+1
+		WHERE bcode = #{bcode}
+	</update>
+	<select id="boardList" resultType="board"
+		parameterType="boardsch">
+		SELECT * FROM 
+		(SELECT rownum cnt,a.* FROM
+		(SELECT b.*,m.name
+		from board b,MEMBER m
+		WHERE b.id = m.id
+		AND btitle LIKE '%'||#{btitle}||'%'
+		AND m.name LIKE '%'||#{name}||'%'ORDER BY bcode desc) a)
+		WHERE cnt BETWEEN #{start} AND #{end}
+		ORDER BY bcode desc
+	</select>
+	<select id="totCnt" resultType="int" parameterType="boardsch">
+		SELECT
+		count(*)
+		FROM BOARD b,member m
+		WHERE b.id = m.id 
+		and btitle LIKE '%'||#{btitle}||'%'
+		AND name LIKE
+		'%'||#{name}||'%'
+	</select>
+	<select id="getBoard"  resultType="board" 
+ 	 	parameterType="int">
+		SELECT bcode, btitle, name, bcontent, readcnt, regdte, a.id
+		FROM board a, member b
+		WHERE a.id = b.id 
+		and bcode = #{bcode}
+	</select>
+	<update id="updateBoard" parameterType="board">
+		UPDATE board
+			set btitle = #{btitle},
+				bcontent = #{bcontent} 
+			where bcode = #{bcode}
+	</update>
+	<update id="updateBoard_file" parameterType="board">
+		UPDATE boardfile
+			set bfname = #{bfname}
+			where bcode = #{bcode}
+	</update>
+	<delete id="deleteBoard" parameterType="int">
+			DELETE FROM board 
+			where bcode = #{bcode}
+	</delete>
+	<insert id="uploadFile" parameterType="boardfile">
+		insert into boardfile values(
+			board_seq.currval,#{bfname},sysdate)
+	</insert>	
+	<select id="getBoardFile" 
+		resultType="String" parameterType="int">
+		select bfname
+		from boardfile
+		where bcode = #{bcode}
+	</select>
+</mapper>

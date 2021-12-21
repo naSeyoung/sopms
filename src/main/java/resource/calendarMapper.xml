@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="sopms.calendar.dao.calendarDao">
+	<resultMap type="cal" id="calResult">
+		<result property="start" column="start1"/>
+		<result property="end" column="end1"/>
+	</resultMap>
+	<resultMap type="sopms.vo.CalStatusCnt" id="calStatusInfo">
+		<result property="status" column="status"/>
+		<result property="cnt" column="cnt"/>
+	</resultMap>
+	<select id="calList" resultMap="calResult" parameterType="cal">
+		SELECT a.*, b.name
+		FROM calendar a, MEMBER b
+		<if test="pm != null and pm != ''">
+		WHERE a.pm = b.id
+		AND (a.pm = #{pm} or a.manager = #{pm})
+		<if test="workcodeSch != null and workcodeSch != 0">
+		AND (parent = #{workcodeSch})
+		</if>
+		</if>
+		<if test="pm == null or pm == ''">
+		WHERE a.MANAGER = b.id		
+		AND a.MANAGER = #{manager}
+		<if test="workcodeSch != null and workcodeSch != 0">
+		AND (parent = #{workcodeSch})
+		</if>
+		</if>
+	</select>
+	<select id="calSch" resultMap="calResult" parameterType="string">
+		SELECT workcode, title, SUBSTR(start1, 1, 10) start1,
+			 SUBSTR(end1, 1, 10) end1
+		FROM calendar 
+		WHERE workcode IN 
+		(SELECT DISTINCT parent FROM calendar
+		WHERE manager = #{id} OR pm = #{id})
+	</select>
+	<insert id="insertCalendar" parameterType="cal">
+		insert into calendar values(cal_seq.nextval, null, #{title}, #{content},	
+		#{start}, #{end}, #{allDay}, #{borderColor}, #{backgroundColor}, #{textColor},
+		<if test="pm == null or pm == ''">
+		(SELECT pm
+		FROM CALENDAR 
+		WHERE workcode = 2),
+		#{manager}, 
+		<if test="parent == null or parent == 0">
+		null, 
+		</if>
+		<if test="parent != null and parent != 0">
+		#{parent}, 
+		</if>
+		#{process}, #{status})
+		</if>
+		<if test="pm != null and pm != ''">
+		#{pm}, #{pm}, #{parent}, #{process}, #{status})
+		</if>
+	</insert>
+	<update id="updateCalendar" parameterType="cal">
+		UPDATE calendar
+				SET title = #{title},
+					content = #{content},
+					start1 = #{start},
+					end1 = #{end},
+					allday = #{allDay},
+					bordercolor = #{borderColor},
+					backgroundcolor = #{backgroundColor},
+					textcolor = #{textColor},
+					process = #{process},
+		<if test="pm != null and pm != ''">
+					parent = #{parent},
+		</if>
+					status = #{status}
+		WHERE id = #{id}
+	</update>
+	<delete id="deleteCalendar" parameterType="int">
+		delete from calendar where id = #{id}
+	</delete>
+	<select id="calStatusCnt" parameterType="string" resultMap="calStatusInfo">
+		SELECT status, count(*) cnt 
+		FROM CALENDAR
+		WHERE manager = #{id}
+		GROUP BY status
+	</select>
+	<select id="calStatusCntAll" parameterType="sopms.vo.CalListSch" resultMap="calStatusInfo">
+		SELECT status, count(*) cnt 
+		FROM CALENDAR
+		WHERE 
+		<if test="workcode != null and workcode != 0">
+		(parent = #{workcode} OR workcode = #{workcode}) AND 
+		</if>
+		(pm = #{manager} OR manager = #{manager})
+		GROUP BY status
+	</select>
+	<select id="calListAll" parameterType="sopms.vo.CalListSch" resultType="sopms.vo.CalList">
+		SELECT * FROM (SELECT rownum AS NO, e.* FROM
+		(SELECT a.title, c.d_day, b.cal_name,
+				CASE WHEN to_char(a.process) IS NULL 
+					THEN a.status
+					ELSE to_char(a.process) 
+				END AS cal_process 
+		FROM calendar a, 
+			(SELECT DISTINCT a.id, CASE WHEN a.manager IS NULL 
+										THEN '전체일정'
+										ELSE b.name 
+									END AS cal_name
+					FROM calendar a, MEMBER b
+					WHERE a.manager = b.id 
+					OR a.manager IS NULL) b,
+			(SELECT id, (TO_DATE(SUBSTR(end1,1,10),'YYYY-MM-DD')-TO_DATE(TO_CHAR(SYSDATE, 'YYYYMMDD'))) AS d_day 
+				FROM calendar) c
+		WHERE c.id = a.id AND b.id = a.id
+		AND (a.pm = #{manager} OR a.manager = #{manager})
+		AND a.status != '종료됨'
+		ORDER BY c.d_day) e)
+		WHERE no BETWEEN #{start} AND #{end}
+	</select>
+	<select id="calCount" parameterType="sopms.vo.CalListSch" resultType="int">
+		SELECT count(*) from calendar
+		where manager = #{manager} or pm = #{manager}
+		<if test="workcode != null and workcode != 0">
+		and (parent = #{workcode} or workcode = #{workcode})
+		</if>
+	</select>
+</mapper>

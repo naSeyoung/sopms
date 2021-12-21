@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="sopms.project.dao.projectDao">
+	<insert id="insertProject" parameterType="project">
+		INSERT INTO project
+		values(project_seq.nextval,#{pname},
+		#{id},#{startdate},#{enddate},#{teamnum},#{status},#{explanation})
+	</insert>
+	<insert id="insertProject_dept" parameterType="project">
+		insert into
+		project_dept values(project_seq.currval,#{dept})
+	</insert>
+	<insert id="insertWbs" parameterType="project">
+		insert into wbs(workcode, title, content, start_date, end_date, duration, pm, status) 
+		values(project_seq.currval,#{pname},#{explanation},to_date(#{startdate},'YYYY-MM-DD'),
+		to_date(#{enddate},'YYYY-MM-DD'),(to_date(#{enddate},'YYYY-MM-DD')-to_date(#{startdate},'YYYY-MM-DD')),#{id},'진행중')
+	</insert>
+	<insert id="insertresource" parameterType="project">
+		INSERT INTO LESOURCE VALUES (project_seq.currval,#{id})
+	</insert>
+	<delete id="deleteProject" parameterType="int">
+		DELETE FROM project
+		WHERE pcode = #{pcode}
+	</delete>
+	<delete id="deleteWbs1" parameterType="int">
+		delete from wbs
+		where workcode = #{pcode}
+	</delete>
+	<delete id="deleteWbs2" parameterType="int">
+		delete from wbs
+		where parent = #{pcode}
+	</delete>
+	<select id="getProject" resultType="project" parameterType="int">
+		SELECT p.pcode, pname, id, teamnum, TO_CHAR(startdate,'YYYY-MM-DD') as
+		startdate, TO_CHAR(enddate,'YYYY-MM-DD') as enddate,
+		status, explanation, b.dept
+		FROM project p,
+		(SELECT pcode, LISTAGG(dept,',') WITHIN GROUP(ORDER BY dept) AS dept FROM
+		PROJECT_DEPT GROUP BY pcode) b
+		WHERE p.PCODE = b.PCODE(+)
+		AND b.PCODE =
+		#{pcode}
+	</select>
+	<update id="updateProject" parameterType="project">
+		UPDATE project
+		SET pname = #{pname},
+		startdate = #{startdate},
+		enddate = #{enddate},
+		teamnum = #{teamnum},
+		status = #{status},
+		explanation = #{explanation}
+		WHERE pcode = #{pcode}
+	</update>
+	<delete id="deleteProject_dept" parameterType="int">
+		delete from project_dept
+		where pcode = #{pcode}
+	</delete>
+	<insert id="updateProject_dept" parameterType="project">
+		insert into project_dept values(#{pcode},#{dept})
+	</insert>
+	
+</mapper>

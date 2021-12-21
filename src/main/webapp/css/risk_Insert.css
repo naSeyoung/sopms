@@ -1,0 +1,30 @@
+@charset "UTF-8";
+
+#title{
+	position : relative;
+	left:62%;
+	font-weight: bold;
+}
+
+#status{
+	width : 30%;
+}
+
+#jochiPerson{
+	width: 30%;
+}
+
+#button_left{
+	position:relative;
+	left:90%;
+	width: 12%;
+}
+#button_right{
+	position:relative;
+	left:10%;
+	width: 12%;
+}
+
+#card-title{
+	margin: 2% 0px 0px 1%;
+}

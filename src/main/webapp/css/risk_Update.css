@@ -1,0 +1,72 @@
+@charset "UTF-8";
+#risk_title{
+	margin: 2% 0 2%20%;
+}
+#title{
+	position : relative;
+	left:62%;
+	font-weight: bold;
+}
+
+#title_1{
+	position:relative;
+	left:85%;
+	font-weight:bold;
+}
+
+#title_2{
+	position:relative;
+	left:15%;
+	font-weight:bold;
+
+}
+
+#title_1_ipt{
+	position:relative;
+	left:10%;
+}
+
+#title_2_ipt{
+	position:relative;
+	right:70%;
+}
+
+#button_right{
+	margin-top:5%;
+	position:relative;
+	left:10%;
+	width: 15%;
+}
+#jochiBtn{
+	margin-top:5%;
+	position:relative;
+	left:80%;
+	width: 15%;
+}
+#modal_status{
+	position:relative;
+	left:20%;
+}
+
+#title_jochi{
+	position:relative;
+	left:20%;
+	font-weight:bold;
+}
+
+#regMan{
+    position:relative;
+    left:8%;
+}
+
+#regDate{
+	position:relative;
+	right: 45%;
+}
+#btnAuthority{
+	margin-top:4%;
+	position:relative;
+	left:47%;
+	width:10%
+}
+
